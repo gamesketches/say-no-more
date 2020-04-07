@@ -1,4 +1,5 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const contentManager = require('./contentManager');
@@ -10,6 +11,8 @@ let participants = [];
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
 });
+
+app.use(express.static('clientCode'));
 
 io.on('connection', function(socket) {
 	AddEventHandlers(socket);
