@@ -8,6 +8,7 @@ const contentManager = require('./contentManager');
 let numPlayers = 0;
 let participants = [];
 let curScenario = "";
+let responses = [];
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -37,7 +38,22 @@ function AddEventHandlers(socket) {
 		console.log("Got start game event");
 		NewEventPrompt();
 	});
-		
+	socket.on('response', function(args) {
+		console.log("received response: ");
+		console.log(args);
+		responses.push(args);
+		let selectionPrompt = {scenario: curScenario, responses:responses};
+		if(responses.length == numPlayers) {
+			participants[0].socket.emit('selection', selectionPrompt);
+		} else {
+			console.log(responses.length);
+			console.log(numPlayers);
+			console.log("waiting on someone");
+		}
+	});	
+	socket.on('pick-winner', function(args) {
+		console.log("picked winner " + args);
+	});
 }
 
 function AddNewParticipant(newPlayerSocket) {

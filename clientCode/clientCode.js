@@ -22,13 +22,21 @@ socket.on('new-round', function(args) {
 	}
 });
 
+socket.on('selection', function(args) {
+	ClearButtons();
+	textArea.innerHTML = "Pick a winner for this scenario: \n" + args.scenario;
+	console.log(args);
+	for(let i = 0; i < args.responses.length; i++) {
+		AddButtonIfNecessary(args.responses[i], "pick-winner", args.responses[i]);
+	}
+});
+
 function AddButtonIfNecessary(buttonText, eventName, args) {
   let newButton = document.createElement("button");
   newButton.innerHTML = buttonText;
   options.appendChild(newButton);
-  newButton.id = eventName;
   newButton.addEventListener("click", function() {
-	  socket.emit(newButton.id);
+	  socket.emit(eventName, args);
   });
 }
 
