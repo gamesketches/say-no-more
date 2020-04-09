@@ -7,6 +7,7 @@ const contentManager = require('./contentManager');
 
 let numPlayers = 0;
 let participants = [];
+let curScenario = "";
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -22,7 +23,8 @@ io.on('connection', function(socket) {
 	if(numPlayers == 1) {
 		socket.emit('first-player-joined');
 	} else {
-		socket.broadcast.emit('player-joined');
+		console.log(numPlayers);
+		socket.broadcast.emit('player-joined', numPlayers);
 	}
 });
 
@@ -33,6 +35,7 @@ function AddEventHandlers(socket) {
 	});
 	socket.on('start-game', function() {
 		console.log("Got start game event");
+		NewEventPrompt();
 	});
 		
 }
@@ -43,8 +46,25 @@ function AddNewParticipant(newPlayerSocket) {
 }
 
 function DrawHand() {
+	let newHand = [];
+	for(let i = 0; i < 5; i++) {
+		let newCard = contentManager.DrawReactionCard();
+		while(newHand.indexOf(newCard) > -1) {
+			newCard = contentManager.DrawReactionCard();
+		}
+		newHand.push(newCard);
+	}
+	return newHand;
 }
 
 http.listen(3000, function() {
 	console.log("listening on port 3000");
 });
+
+function NewEventPrompt(){
+	curScenario = contentManager.DrawScenarioCard(0);
+	participants.forEach(function(player) {
+		let args = {scenario:curScenario, hand:DrawHand()};
+		player.socket.emit('new-round',args);
+	});
+}
