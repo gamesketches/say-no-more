@@ -40,7 +40,6 @@ function AddEventHandlers(socket) {
 	});
 	socket.on('response', function(args) {
 		console.log("received response: ");
-		console.log(args);
 		responses.push(args);
 		let selectionPrompt = {scenario: curScenario, responses:responses};
 		if(responses.length == numPlayers) {
@@ -53,12 +52,21 @@ function AddEventHandlers(socket) {
 	});	
 	socket.on('pick-winner', function(args) {
 		console.log("picked winner " + args);
+		for(let i = 0; i < participants.length; i++) {
+			if(participants[i].id == args) {
+				participants[i].socket.emit('round-win');
+				participants[i].socket.broadcast.emit('round-lose');
+				break;
+			}
+		}
 	});
 }
 
 function AddNewParticipant(newPlayerSocket) {
 	let newHand = DrawHand();
-	participants.push({id:numPlayers - 1, hand: newHand, responded: false, score:0, socket:newPlayerSocket});
+	let newParticipant = {id:numPlayers - 1, hand: newHand, responded: false, score:0, socket:newPlayerSocket};
+	participants.push(newParticipant);
+	newPlayerSocket.emit('get-info', {id:newParticipant.id});
 }
 
 function DrawHand() {
