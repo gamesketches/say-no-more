@@ -9,6 +9,7 @@ let numPlayers = 0;
 let participants = [];
 let curScenario = "";
 let responses = [];
+let picker = 0;
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -33,6 +34,11 @@ function AddEventHandlers(socket) {
 	socket.on('disconnect', function() {
 		console.log('user disconnected');
 		numPlayers--;
+		if(numPlayers == 0) {
+			participants = [];
+			responses = [];
+			picker = 0;
+		}
 	});
 	socket.on('start-game', function() {
 		console.log("Got start game event");
@@ -42,13 +48,10 @@ function AddEventHandlers(socket) {
 		console.log("received response: ");
 		responses.push(args);
 		let selectionPrompt = {scenario: curScenario, responses:responses};
-		if(responses.length == numPlayers) {
-			participants[0].socket.emit('selection', selectionPrompt);
-		} else {
-			console.log(responses.length);
-			console.log(numPlayers);
-			console.log("waiting on someone");
-		}
+		GetPlayerById(args.playerId).responded = true;
+		if(CheckAllResponded()) {
+			GetPlayerById(picker).socket.emit('selection', selectionPrompt);
+		} 
 	});	
 	socket.on('pick-winner', function(args) {
 		console.log("picked winner " + args);
@@ -56,15 +59,22 @@ function AddEventHandlers(socket) {
 			if(participants[i].id == args) {
 				participants[i].socket.emit('round-win');
 				participants[i].socket.broadcast.emit('round-lose');
-				break;
+				participants[i].score += 1;
 			}
+			participants[i].response = "";
+			participants[i].responded = false;
 		}
+		responses = [];
+	});
+	socket.on('next-round', function() {
+		NewEventPrompt();
 	});
 }
 
 function AddNewParticipant(newPlayerSocket) {
 	let newHand = DrawHand();
-	let newParticipant = {id:numPlayers - 1, hand: newHand, responded: false, score:0, socket:newPlayerSocket};
+	let newParticipant = {id:numPlayers - 1, hand: newHand, responded: false, score:0,
+																 socket:newPlayerSocket};
 	participants.push(newParticipant);
 	newPlayerSocket.emit('get-info', {id:newParticipant.id});
 }
@@ -86,9 +96,50 @@ http.listen(3000, function() {
 });
 
 function NewEventPrompt(){
+	PickNewPicker();
 	curScenario = contentManager.DrawScenarioCard(0);
 	participants.forEach(function(player) {
-		let args = {scenario:curScenario, hand:DrawHand()};
-		player.socket.emit('new-round',args);
+		if(player.id != picker) {
+			let args = {scenario:curScenario, hand:DrawHand()};
+			player.socket.emit('new-round',args);
+		}
 	});
 }
+
+function CheckAllResponded(){
+     for(let i = 0; i < participants.length; i++) {
+         if(participants[i].id != picker && !participants[i].responded) {
+             console.log("someone hasn't responded!");
+			 console.log(participants[i].id);
+			 return false;
+         }
+     }
+	return true;
+}
+
+function PickNewPicker() {
+	console.log("In PickNewPicker");
+	if(participants.length == 1) return;
+	console.log("Participant length check is throwing??");
+	for(let i = 0; i < participants.length; i++) {
+         if(participants[i].id == picker) {
+             if(i + 1 == participants.length) {
+                 picker = participants[0].id;
+				console.log("picker is player number: " + picker);
+             } else {
+                 picker = participants[i+1].id;
+			 	 console.log("picker is player number: " + picker);
+                 return;
+             }
+         }
+     }
+ }
+
+function GetPlayerById(playerId) {
+	for(let i = 0; i < participants.length; i++) {
+		if(participants[i].id === playerId) {
+			return participants[i];
+		}
+	}
+}
+	

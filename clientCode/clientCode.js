@@ -7,12 +7,11 @@ let playerInfo = {};
 socket.on('first-player-joined', function() {
   AddButtonIfNecessary("Start Game", "start-game");
   textArea.innerHTML = "Welcome to Say No More! Click the start button when your friends have joined!";
-  console.log("first player");
 });
 
 socket.on('player-joined', function(numPlayers) {
 	console.log(numPlayers);
-  textArea.innerHTML = textArea.innerHTML + " " + numPlayers + " are in";
+    textArea.innerHTML = textArea.innerHTML + " " + numPlayers + " are in";
 });
 
 socket.on('get-info', function(info) {
@@ -40,6 +39,7 @@ socket.on('selection', function(args) {
 
 socket.on('round-win', function() {
 	textArea.innerHTML = "You won the round! Great Job!";
+	AddButtonIfNecessary("Start next round", "next-round");
 });
 
 socket.on('round-lose', function() {
