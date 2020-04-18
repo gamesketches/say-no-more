@@ -11,6 +11,7 @@ let participants = [];
 let curScenario = "";
 let responses = [];
 let picker = 0;
+let winThreshold = 2;
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -74,9 +75,15 @@ function AddEventHandlers(socket) {
 		console.log("picked winner " + args);
 		for(let i = 0; i < participants.length; i++) {
 			if(participants[i].id == args) {
-				participants[i].socket.emit('round-win');
-				participants[i].socket.broadcast.emit('round-lose');
 				participants[i].score += 1;
+				if(participants[i].score >= winThreshold) {
+					participants[i].socket.emit('game-win');
+					participants[i].socket.broadcast.emit('game-lose');
+					return;
+				} else {
+					participants[i].socket.emit('round-win');
+					participants[i].socket.broadcast.emit('round-lose');
+				}
 			}
 			participants[i].response = "";
 			participants[i].responded = false;

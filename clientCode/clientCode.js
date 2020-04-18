@@ -31,7 +31,6 @@ socket.on('get-info', function(info) {
 });
 
 socket.on('new-round', function(args) {
-	document.getElementById("rulesArea").innerHTML = "";
 	ClearButtons();
 	textArea.innerHTML = args.scenario;
 	for(let i = 0; i < args.hand.length; i++) {
@@ -51,6 +50,15 @@ socket.on('selection', function(args) {
 socket.on('round-win', function() {
 	textArea.innerHTML = "You won the round! Great Job!";
 	AddButton("Start next round", "next-round");
+});
+
+socket.on('game-win', function() {
+	console.log("Won the game");
+	textArea.innerHTML = "You won the game, congratulations!!!" + "<br>" + "Thanks for playing Say No More!";
+});
+
+socket.on('game-lose', function() {
+	textArea.innerHTML = "The game is over!" + "<br>" + "Thanks for playing Say No More!";
 });
 
 socket.on('round-lose', function() {
@@ -73,6 +81,7 @@ function AddButton(buttonText, eventName, args, callBack) {
 }
 
 function ClearButtons(){
+	document.getElementById("rulesArea").innerHTML = "";
 	Array.from(options.children).forEach((button) => {
 		options.removeChild(button);
 	});
