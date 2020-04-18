@@ -5,6 +5,7 @@ const io = require('socket.io')(http);
 const contentManager = require('./contentManager');
 
 
+let gameStatus = "idle";
 let numPlayers = 0;
 let participants = [];
 let curScenario = "";
@@ -24,9 +25,10 @@ io.on('connection', function(socket) {
 	AddNewParticipant(socket);
 	if(numPlayers == 1) {
 		socket.emit('first-player-joined');
+		picker = participants[0].id;
 	} else {
 		console.log(numPlayers);
-		socket.broadcast.emit('player-joined', numPlayers);
+		io.emit('player-joined', numPlayers);
 	}
 });
 
@@ -34,6 +36,18 @@ function AddEventHandlers(socket) {
 	socket.on('disconnect', function() {
 		console.log('user disconnected');
 		numPlayers--;
+		for(let i = 0; i < participants.length; i++) {
+			if(participants[i].socket == socket){
+				console.log("found my guy");
+				if(participants[i].id == picker) {
+					PickNewPicker()
+					if(gameStatus == "idle") {
+						GetPlayerById(picker).socket.emit('first-player-joined');
+					}
+				}
+				participants.splice(i,1);
+			}
+		};
 		if(numPlayers == 0) {
 			participants = [];
 			responses = [];
@@ -42,7 +56,10 @@ function AddEventHandlers(socket) {
 	});
 	socket.on('start-game', function() {
 		console.log("Got start game event");
-		NewEventPrompt();
+		gameStatus = "playing";
+		if(numPlayers > 1) {
+			NewEventPrompt();
+		}
 	});
 	socket.on('response', function(args) {
 		console.log("received response: ");
@@ -73,7 +90,7 @@ function AddEventHandlers(socket) {
 
 function AddNewParticipant(newPlayerSocket) {
 	let newHand = DrawHand();
-	let newParticipant = {id:numPlayers - 1, hand: newHand, responded: false, score:0,
+	let newParticipant = {id:GenerateNewID(), hand: newHand, responded: false, score:0,
 																 socket:newPlayerSocket};
 	participants.push(newParticipant);
 	newPlayerSocket.emit('get-info', {id:newParticipant.id});
@@ -141,5 +158,11 @@ function GetPlayerById(playerId) {
 			return participants[i];
 		}
 	}
+}
+
+function GenerateNewID() {
+	let baseNumber = Math.random() * 10000;
+	console.log("Generated playerID: " + Math.floor(baseNumber));
+	return Math.floor(baseNumber);
 }
 	

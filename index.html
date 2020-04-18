@@ -2,11 +2,69 @@
 <html>
   <head>
     <title>Say No More</title>
+  <style>
+	body {
+	  background-color: #9d1e61;
+	  font-color: white;
+	}
+
+	button {
+			background-color:yellow;
+			border: none;
+			color:red;
+			text-align: center;
+			border-radius:8px;
+			padding: 30px;
+			box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	}
+	  
+	@media only screen and (max-width: 600px) {
+		h1 {
+			color:#fff;
+			font-size:40px;
+			text-align:center;
+		}
+
+		div {
+			color:#fff;
+			font-size: 20px;
+			text-align: center;
+			margin:20px;
+		}
+		
+		button {
+			font-size:20px;
+			margin:auto;
+			margin-top:13px;
+			display:block;
+		}
+			
+	}
+    @media only screen and (min-width: 768px) {
+		h1 {
+			color:#fff;
+			font-size:80px;
+			margin:20px;
+		}
+		
+		div {
+			color:#fff;
+			font-size: 40px;
+			margin:20px;
+		}
+
+		button {
+			font-size:40px;
+			margin:10px;
+		}
+	}
+  </style>
    </head>
   <body>
-	<h1>Welcome to say no more!</h1>
+	<h1>Say No More</h1>
 	<div id="textArea"></div>
     <ul id="options"></ul>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="/clientCode.js"></script>
   </body>
