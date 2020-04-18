@@ -18,7 +18,7 @@ socket.on('first-player-joined', function() {
 socket.on('player-joined', function(numPlayers) {
 	console.log(numPlayers);
 	if(host) {
-    	textArea.innerHTML = textArea.innerHTML + "\n" + numPlayers + " have joined";
+    	textArea.innerHTML = "Click the start button when your friends have joined!" + "\n" + numPlayers + " have joined";
 	} else {
 		textArea.innerHTML = "There are currently " + numPlayers + " in the game. We'll start soon!";
 	}
@@ -31,6 +31,7 @@ socket.on('get-info', function(info) {
 });
 
 socket.on('new-round', function(args) {
+	document.getElementById("rulesArea").innerHTML = "";
 	ClearButtons();
 	textArea.innerHTML = args.scenario;
 	for(let i = 0; i < args.hand.length; i++) {
