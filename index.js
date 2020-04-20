@@ -11,7 +11,8 @@ let participants = [];
 let curScenario = "";
 let responses = [];
 let picker = 0;
-let winThreshold = 2;
+let winThreshold = 4;
+let customThreshold = 1;
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -134,6 +135,8 @@ function NewEventPrompt(){
 		if(player.id != picker) {
 			let args = {scenario:curScenario, hand:DrawHand()};
 			player.socket.emit('new-round',args);
+		} else {
+			player.socket.emit('new-round-picker');
 		}
 	});
 }

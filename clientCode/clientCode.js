@@ -39,6 +39,11 @@ socket.on('new-round', function(args) {
 	}
 });
 
+socket.on('new-round-picker', function() {
+	ClearButtons();
+	textArea.innerHTML = "You'll be picking the response this round, hang tight!"
+});
+
 socket.on('selection', function(args) {
 	ClearButtons();
 	textArea.innerHTML = "Pick a winner for this scenario: \n" + args.scenario;
