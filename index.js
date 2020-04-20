@@ -12,7 +12,7 @@ let curScenario = "";
 let responses = [];
 let picker = 0;
 let winThreshold = 4;
-let customThreshold = 1;
+let customCadence = 2;
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + "/index.html");
@@ -73,6 +73,7 @@ function AddEventHandlers(socket) {
 		} 
 	});	
 	socket.on('custom-scenario-entered', function(scenario) {
+		curScenario = scenario;
 		participants.forEach(function(player) {
 			if(player.id != picker) {
 				let args = {scenario:scenario, hand:DrawHand()};
@@ -90,8 +91,13 @@ function AddEventHandlers(socket) {
 					participants[i].socket.broadcast.emit('game-lose');
 					return;
 				} else {
-					participants[i].socket.emit('round-win');
 					participants[i].socket.broadcast.emit('round-lose');
+					if(IsCustomRound()) {
+						picker = participants[i].id;
+						participants[i].socket.emit('custom-scenario');
+					} else {
+						participants[i].socket.emit('round-win');
+					}
 				}
 			}
 			participants[i].response = "";
@@ -175,5 +181,15 @@ function GenerateNewID() {
 	let baseNumber = Math.random() * 10000;
 	console.log("Generated playerID: " + Math.floor(baseNumber));
 	return Math.floor(baseNumber);
+}
+
+function IsCustomRound() { return GetRoundNum() % customCadence == 0}
+
+function GetRoundNum() {
+	let rounds = 0;
+	participants.forEach(function(player) {
+		rounds += player.score;
+	});
+	return rounds;
 }
 	

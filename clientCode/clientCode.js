@@ -57,7 +57,7 @@ socket.on('custom-scenario', function() {
 	let textInput = document.createElement("INPUT");
 	textInput.setAttribute("type", "text");
 	textInput.setAttribute("placeholder", "Write about your experience here...");
-	textArea.innerHTML = "Write about a dating scenario you struggled with";
+	textArea.innerHTML = "You won the last round, nice job! Think describe a dating scenario you struggled with in the past";
 	options.appendChild(textInput);
 	AddButton("Submit", "custom-scenario-entered", null, function() {
 		socket.emit("custom-scenario-entered", options.childNodes[0].value);
