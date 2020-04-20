@@ -153,19 +153,12 @@ function CheckAllResponded(){
 }
 
 function PickNewPicker() {
-	console.log("In PickNewPicker");
 	if(participants.length == 1) return;
-	console.log("Participant length check is throwing??");
 	for(let i = 0; i < participants.length; i++) {
          if(participants[i].id == picker) {
-             if(i + 1 == participants.length) {
-                 picker = participants[0].id;
-				console.log("picker is player number: " + picker);
-             } else {
-                 picker = participants[i+1].id;
-			 	 console.log("picker is player number: " + picker);
-                 return;
-             }
+			picker = participants[(i + 1) % participants.length].id;
+			console.log("picker is player number: " + picker);
+			return;
          }
      }
  }
