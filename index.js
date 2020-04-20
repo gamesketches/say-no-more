@@ -71,6 +71,14 @@ function AddEventHandlers(socket) {
 			GetPlayerById(picker).socket.emit('selection', selectionPrompt);
 		} 
 	});	
+	socket.on('custom-scenario-entered', function(scenario) {
+		participants.forEach(function(player) {
+			if(player.id != picker) {
+				let args = {scenario:scenario, hand:DrawHand()};
+				player.socket.emit('new-round',args);
+			}
+		});	
+	});
 	socket.on('pick-winner', function(args) {
 		console.log("picked winner " + args);
 		for(let i = 0; i < participants.length; i++) {
