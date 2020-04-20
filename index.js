@@ -65,6 +65,7 @@ function AddEventHandlers(socket) {
 	});
 	socket.on('response', function(args) {
 		console.log("received response: ");
+		console.log(args);
 		responses.push(args);
 		let selectionPrompt = {scenario: curScenario, responses:responses};
 		GetPlayerById(args.playerId).responded = true;
@@ -73,11 +74,12 @@ function AddEventHandlers(socket) {
 		} 
 	});	
 	socket.on('custom-scenario-entered', function(scenario) {
+		console.log("Custom scenario entered");
 		curScenario = scenario;
 		participants.forEach(function(player) {
 			if(player.id != picker) {
-				let args = {scenario:scenario, hand:DrawHand()};
-				player.socket.emit('new-round',args);
+				let args = {scenario:scenario};
+				player.socket.emit('custom-response',args);
 			}
 		});	
 	});

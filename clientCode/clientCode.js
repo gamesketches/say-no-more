@@ -54,17 +54,31 @@ socket.on('selection', function(args) {
 
 socket.on('custom-scenario', function() {
 	ClearButtons();
-	let textInput = document.createElement("INPUT");
+	/*let textInput = document.createElement("INPUT");
 	textInput.setAttribute("type", "text");
-	textInput.setAttribute("placeholder", "Write about your experience here...");
+	textInput.setAttribute("placeholder", "Write about your experience here...");*/
+	AddTextInput("Write about your experience here...");
 	textArea.innerHTML = "You won the last round, nice job! Think describe a dating scenario you struggled with in the past";
-	options.appendChild(textInput);
+	//options.appendChild(textInput);
 	AddButton("Submit", "custom-scenario-entered", null, function() {
 		socket.emit("custom-scenario-entered", options.childNodes[0].value);
 		ClearButtons();
 		textArea.innerHTML = "Let's see what everyone thinks";
 	});
 });
+
+socket.on('custom-response', function(args) {
+	ClearButtons();
+	textArea.innerHTML = "How would you say NO to the following scenario?" + args.scenario;
+	AddTextInput("Write how you would say no");
+	AddButton("Submit", "custom-scenario-entered", null, function() {
+		let responseArgs = {response: options.childNodes[0].value, playerId: playerInfo.id}
+		socket.emit("response", responseArgs);
+		ClearButtons();
+		textArea.innerHTML = "Let's see what everyone thinks";
+	});
+});
+	
 socket.on('round-win', function() {
 	textArea.innerHTML = "You won the round! Great Job!";
 	AddButton("Start next round", "next-round");
@@ -97,6 +111,14 @@ function AddButton(buttonText, eventName, args, callBack) {
 	} else {
 	  newButton.addEventListener("click",callBack);
 	} 
+}
+
+function AddTextInput(placeholder) {
+	let textInput = document.createElement("INPUT");
+	textInput.setAttribute("type", "text");
+	textInput.setAttribute("placeholder", placeholder);
+	options.appendChild(textInput);
+	return textInput;
 }
 
 function ClearButtons(){
